@@ -27,11 +27,15 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && ($databaseConnection)) {
     $otherSkills = isset($_POST["other_skill"]) ? sanitiseInput($_POST["other_skill"]) : null;
 
     // Validate all inputs to ensure they match
+} else {
+    // Redirect back to apply page
+    header("apply.php")
 }
 
-private function sanitiseInput($input) {
+function sanitiseInput($input) {
    $input = trim($input);
    $input = stripslashes($input);
    $input = htmlspecialchars($input);
 }
+
 ?>
