@@ -62,6 +62,8 @@
                     <option value="act">ACT</option>
                     <option value="tas">TAS</option>
                 </select>
+                <label for="postcode">Postcode:</label>
+                <input type="text" name="postcode" id="postcode" maxlength="4">
             </fieldset>
 
         <!---CONTACT DETAILS-->
@@ -79,13 +81,13 @@
             <div class="skillsContainer">
                 <fieldset> 
                     <legend>Skills</legend>
-                    <label><input type="checkbox" name="skills" value="html" required> HTML</label><br>
-                    <label><input type="checkbox" name="skills" value="css" required> CSS</label><br>
-                    <label><input type="checkbox" name="skills" value="javascript" required> JavaScript</label><br>
-                    <label><input type="checkbox" name="skills" value="python" required> Python</label><br>
-                    <label><input type="checkbox" name="skills" value="java" required> Java</label><br>
-                    <label><input type="checkbox" name="skills" value="sql" required> SQL</label><br>
-                    <label><input type="checkbox" name="skills" value="git" required> Git</label><br>
+                    <label><input type="checkbox" name="html" value="html"> HTML</label><br>
+                    <label><input type="checkbox" name="css" value="css"> CSS</label><br>
+                    <label><input type="checkbox" name="javascript" value="javascript"> JavaScript</label><br>
+                    <label><input type="checkbox" name="python" value="python"> Python</label><br>
+                    <label><input type="checkbox" name="java" value="java"> Java</label><br>
+                    <label><input type="checkbox" name="sql" value="sql"> SQL</label><br>
+                    <label><input type="checkbox" name="git" value="git"> Git</label><br>
                     <br />    
                 </fieldset>
             </div>
