@@ -7,20 +7,7 @@
     <link rel="stylesheet" href="styles/styles.css">
 </head>
 <body>
-    <header>
-        <img src="images/logo3.svg" alt="Logo" class="logo">
-        <nav>
-            <ul>
-                <li><a href="index.html">Home🏡</a></li>
-                <li><a href="jobs.html">Jobs⚒️</a></li>
-                <li><a href="apply.html">Apply✅</a>
-                <span class="openEmailText">Opens email to "info@barelysufficientsolutions.com"</span>
-                </li>
-                <li><a href="about.html">About👯</a></li>
-                <li><a id="emailButton" href="mailto:charliewalker@gmail.com">Email📩</a></li>
-            </ul>
-        </nav>
-    </header>
+    <?php include "header.inc"; ?>
     <main id="jobs_page">
         <section class="data_analyst_card data_analyst">
             <h2>Data Analyst</h2>
@@ -95,8 +82,6 @@
             <p>We offer a dynamic environment, growth opportunities and a chance to work with cutting edge technologies.</p>
         </aside>
     </main>
-    <footer>
-        <p>&copy; Barely Sufficient Solutions - All rights reserved</p>
-    </footer>
+    <?php include "footer.inc"; ?>
 </body>
 </html>

@@ -8,20 +8,7 @@
     <link rel="stylesheet" href="styles/styles.css">
 </head>
 <body id="applyBody">
-    <header>
-        <img src="images/logo3.svg" alt="Logo" class="logo">
-        <nav>
-            <ul>
-                <li><a href="index.html">Home🏡</a></li>
-                <li><a href="jobs.html">Jobs⚒️</a></li>
-                <li><a href="#">Apply✅</a>
-                <span class="openEmailText">Opens email to "info@barelysufficientsolutions.com"</span>
-                </li>
-                <li><a href="about.html">About👯</a></li>
-                <li><a id="emailButton" href="mailto:charliewalker@gmail.com">Email📩</a></li>
-            </ul>
-        </nav>
-    </header>
+    <?php include "header.inc"; ?>
     <main>
         <a class='jobsLink' href="jobs.html">See more about our positions</a>
         <h1 id="openPositionsTitle">Apply For Our Open Positions!</h1>
@@ -108,10 +95,7 @@
         <div class="submitContainer"><input type="submit" value='Apply✅' class="applyInput"/></div>
         </form>
     </main>
-        <footer>
-            <p>&copy; 2025 Barely Suficient Solutions Inc. All rights Reserved.</p>
-            <a href="https://charliewalker.atlassian.net/jira/software/projects/WDP/boards/34">Jira</a>
-        </footer>
+    <?php include "footer.inc"; ?>
 </body>
 </html>
 
