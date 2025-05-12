@@ -16,20 +16,22 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && ($databaseConnection)) {
     $postcode = isset($_POST["postcode"]) ? sanitiseInput($_POST["postcode"]) : null;
     $emailAddress = isset($_POST["email"]) ? sanitiseInput($_POST["email"]) : null;
     $phoneNumber = isset($_POST["phone"]) ? sanitiseInput($_POST["phone"]) : null;
+    
     $skills = [];
-    isset($_POST["html"]) ? $skills[] = sanitiseInput($_POST["html"]);
-    isset($_POST["css"]) ? $skills[] = sanitiseInput($_POST["css"]);
-    isset($_POST["javascript"]) ? $skills[] = sanitiseInput($_POST["javascript"]);
-    isset($_POST["python"]) ? $skills[] = sanitiseInput($_POST["python"]);
-    isset($_POST["java"]) ? $skills[] = sanitiseInput($_POST["java"]);
-    isset($_POST["sql"]) ? $skills[] = sanitiseInput($_POST["sql"]);
-    isset($_POST["git"]) ? $skills[] = sanitiseInput($_POST["git"]);
+    if (isset($_POST["html"])) $skills[] = sanitiseInput($_POST["html"]);
+    if (isset($_POST["css"])) $skills[] = sanitiseInput($_POST["css"]);
+    if (isset($_POST["javascript"])) $skills[] = sanitiseInput($_POST["javascript"]);
+    if (isset($_POST["python"])) $skills[] = sanitiseInput($_POST["python"]);
+    if (isset($_POST["java"])) $skills[] = sanitiseInput($_POST["java"]);
+    if (isset($_POST["sql"])) $skills[] = sanitiseInput($_POST["sql"]);
+    if (isset($_POST["git"])) $skills[] = sanitiseInput($_POST["git"]);
+
     $otherSkills = isset($_POST["other_skill"]) ? sanitiseInput($_POST["other_skill"]) : null;
 
     // Validate all inputs to ensure they match
 } else {
     // Redirect back to apply page
-    header("apply.php")
+    header("apply.php");
 }
 
 function sanitiseInput($input) {
