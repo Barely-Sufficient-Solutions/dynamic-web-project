@@ -14,7 +14,7 @@
         <h1 id="openPositionsTitle">Apply For Our Open Positions!</h1>
         <hr>
         
-        <form method="post" action="http://mercury.swin.edu.au/it000000/formtest.php">
+        <form method="post" action="./process_eoi.php">
             <fieldset>
                 <legend>Job Reference Number</legend>
                 <label for="referencenumber">Select a Job Reference Number:</label>
@@ -29,30 +29,31 @@
             <fieldset>
                 <legend>Personal Details</legend>
                     <label for="firstname">First Name:</label>
-                    <input type="text" name="firstname" id="firstname" maxlength="20" required>
+                    <input type="text" name="firstname" id="firstname" maxlength="20">
                 
                 <label for="lastname">Last Name:</label>
-                    <input type="text" name="lastname" id="lastname" maxlength="20" required>
+                    <input type="text" name="lastname" id="lastname" maxlength="20">
                 
-                <label for="dob">Date Of Birth:</label>
-                    <input type="date" name="dob" id="dob" required>
+                <label for="dob">Date Of Birth (dd/mm/yyyy):</label>
+                    <input type="text" name="dob" id="dob">
                 <h2>Gender </h2>
-                    <input type="radio" id="male" name="gender" value="male" required>
+                    <input type="radio" id="male" name="gender" value="male">
                     <label for="male">Male</label>
                     
-                    <input type="radio" id="female" name="gender" value="female" required>
+                    <input type="radio" id="female" name="gender" value="female">
                     <label for="female">Female</label>
                     
-                    <input type="radio" id="other" name="gender" value="other" required>
+                    <input type="radio" id="other" name="gender" value="other">
                     <label for="other">Other</label> <br/> <br/>
                 <label for="streetaddress">Street Address:</label>
-                    <input type="text" name="streetaddress" id="streetaddress" maxlength="40" required>
+                    <input type="text" name="streetaddress" id="streetaddress" maxlength="40">
                 
                 <label for="suburb">Suburb/Town:</label>
                     <input type="text" name="suburb" id="suburb" maxlength="40">
                 
                 <label for="state">State:</label>
                 <select name="state" id="state">
+                    <option selected disabled>Select:</option>
                     <option value="qld">QLD</option>
                     <option value="nsw">NSW</option>
                     <option value="vic">VIC</option>
@@ -71,10 +72,10 @@
             <fieldset>
                 <legend>Contact Details</legend>
                     <label for="email">Email:</label>
-                <input type="email" name="email" id="email" required>
+                <input type="email" name="email" id="email">
                 
                 <label for="phone">Phone Number:</label>
-                    <input type="tel" id="phone" name="phone" pattern="\d{8,12}" required>
+                    <input type="tel" id="phone" name="phone" pattern="\d{8,12}">
             </fieldset>
 
         <!---skills-->
@@ -91,7 +92,7 @@
                     <br />    
                 </fieldset>
             </div>
-        <label>Other Skills: <input type="text" name="other_skill"></label><br>
+        <label>Other Skills (optional): <input type="text" name="other_skills"></label><br>
             <br>
 
         <div class="submitContainer"><input type="submit" value='Apply✅' class="applyInput"/></div>
