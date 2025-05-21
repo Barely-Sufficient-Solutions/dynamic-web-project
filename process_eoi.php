@@ -138,7 +138,6 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && ($databaseConnection)) {
 
     // If form is valid, continue, otherwise redirect back and alert any errors.
     if (empty($errorList)) {
-        echo "good boy";
         // Create SQL query
         $query = "INSERT INTO `eoi`(`jobReferenceNumber`, `firstName`, `lastName`, `dateOfBirth`, `gender`, `streetAddress`, `suburb`, `state`, `postcode`, `emailAddress`, `phoneNumber`, `skillsList`, `otherSkills`) VALUES ('$referenceNumber','$firstName',$lastName','$dateOfBirth','$gender','$streetAddress','$suburb','$state','$postcode','$emailAddress','$phoneNumber','$skillsJsonEncoded','$otherSkills')";
         // Execute SQL query

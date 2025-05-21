@@ -14,10 +14,6 @@
             <h2>Welcome to Our Website</h2>
             <p>Placeholder text</p>
         </section>
-        <section>
-            <h2>Our Services</h2>
-            <p>Placeholder text</p>
-        </section>
     </main>
 
     <?php include "footer.inc"; ?>
