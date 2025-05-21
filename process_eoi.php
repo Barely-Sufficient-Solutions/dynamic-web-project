@@ -2,6 +2,9 @@
 
 require_once("settings.php");
 $databaseConnection = mysqli_connect($host, $username, $password, $database);
+if (!$databaseConnection) {
+    die("Connection failed: " . mysqli_connect_error());
+}
 
 if (($_SERVER["REQUEST_METHOD"] == "POST") && ($databaseConnection)) {
     // Get all relevant variables from POST request and sanitise them if they exist
@@ -136,14 +139,18 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && ($databaseConnection)) {
     // If form is valid, continue, otherwise redirect back and alert any errors.
     if (empty($errorList)) {
         echo "good boy";
+        // Create SQL query
+        $query = "INSERT INTO `eoi`(`jobReferenceNumber`, `firstName`, `lastName`, `dateOfBirth`, `gender`, `streetAddress`, `suburb`, `state`, `postcode`, `emailAddress`, `phoneNumber`, `skillsList`, `otherSkills`) VALUES ('$referenceNumber','$firstName',$lastName','$dateOfBirth','$gender','$streetAddress','$suburb','$state','$postcode','$emailAddress','$phoneNumber','$skillsJsonEncoded','$otherSkills')";
+        // Execute SQL query
+        $result = mysqli_query($databaseConnection, $query);
+        header("Location: applied.php");
+        mysqli_close($databaseConnection);
     } else {
         // Show all errors on the apply page
         $encodedErrorList = json_encode($errorList);
         header("Location: apply.php?errors=$encodedErrorList");
+        mysqli_close($databaseConnection);
     }
-
-    // Create SQL query
-    $query = "INSERT INTO `eoi`(`jobReferenceNumber`, `firstName`, `lastName`, `dateOfBirth`, `gender`, `streetAddress`, `suburb`, `state`, `postcode`, `emailAddress`, `phoneNumber`, `skillsList`, `otherSkills`) VALUES ('$referenceNumber','$firstName',$lastName','$dateOfBirth','$gender','$streetAddress','$suburb','$state','$postcode','$emailAddress','$phoneNumber','$skillsJsonEncoded','$otherSkills')";
 } else {
     // Redirect back to apply page
     header("Location: apply.php");
