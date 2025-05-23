@@ -2,9 +2,10 @@
 session_start();
 require_once './settings.php';
 
-$login_error_message = "";
 $eoi_query_message = "";
-$show_manager_content = false;
+$show_manager_content = true;
+
+print_r($_SESSION);
 
 $conn = mysqli_connect($host, $username, $password, $database);
 if (!$conn) {
@@ -13,30 +14,30 @@ if (!$conn) {
 }
 
 // Handle login
-if (isset($_POST['login']) && isset($_POST['username']) && isset($_POST['password'])) {
-    $username_attempt = trim($_POST['username']);
-    $password_attempt = $_POST['password'];
-
-    $query = "SELECT * FROM managers WHERE username = ?";
-    $stmt = mysqli_prepare($conn, $query);
-    if ($stmt) {
-        mysqli_stmt_bind_param($stmt, 's', $username_attempt);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-        $manager_data = mysqli_fetch_assoc($result);
-        mysqli_stmt_close($stmt);
-
-        if ($manager_data && password_verify($password_attempt, $manager_data['password'])) {
-            $_SESSION['manager_logged_in'] = true;
-            $_SESSION['manager_username'] = $manager_data['username'];
-            session_regenerate_id(true);
-            header("Location: manage.php");
-            exit();
-        } else {
-            $login_error_message = "Invalid username or password.";
-        }
-    }
-}
+//if (isset($_POST['login']) && isset($_POST['username']) && isset($_POST['password'])) {
+//    $username_attempt = trim($_POST['username']);
+//    $password_attempt = $_POST['password'];
+//
+//    $query = "SELECT * FROM managers WHERE username = ?";
+//    $stmt = mysqli_prepare($conn, $query);
+//    if ($stmt) {
+//        mysqli_stmt_bind_param($stmt, 's', $username_attempt);
+//        mysqli_stmt_execute($stmt);
+//        $result = mysqli_stmt_get_result($stmt);
+//        $manager_data = mysqli_fetch_assoc($result);
+//        mysqli_stmt_close($stmt);
+//
+//        if ($manager_data && password_verify($password_attempt, $manager_data['password'])) {
+//            $_SESSION['manager_logged_in'] = true;
+//            $_SESSION['manager_username'] = $manager_data['username'];
+//            session_regenerate_id(true);
+//            header("Location: manage.php");
+//            exit();
+//        } else {
+//            $login_error_message = "Invalid username or password.";
+//        }
+//    }
+//}
 
 // Already logged in
 if (isset($_SESSION['manager_logged_in']) && $_SESSION['manager_logged_in'] === true) {
@@ -47,7 +48,7 @@ if (isset($_SESSION['manager_logged_in']) && $_SESSION['manager_logged_in'] === 
 if (isset($_GET['logout'])) {
     session_unset();
     session_destroy();
-    header("Location: manage.php");
+    header("Location: ./login.php");
     exit();
 }
 
@@ -56,6 +57,8 @@ $eoi_query = "SELECT EOInumber, jobReferenceNumber, firstName, lastName, status 
 $where = [];
 $params = [];
 $types = "";
+
+$managerUsername = isset($_SESSION['manager_username']) ? htmlspecialchars($_SESSION['manager_username']) : '';
 
 // Handle search
 if ($show_manager_content && isset($_POST['search'])) {
@@ -146,104 +149,86 @@ if (!empty($where)) {
 <?php include('header.inc'); ?>
 <main>
 
-<?php if (!$show_manager_content): ?>
-  <h2>Manager Login</h2>
-  <?php if (!empty($login_error_message)): ?>
-    <p style="color: red;"><strong><?php echo htmlspecialchars($login_error_message); ?></strong></p>
-  <?php endif; ?>
-  <form method="post" action="manage.php" novalidate="novalidate">
-    <label>Username: <input type="text" name="username" required></label><br>
-    <label>Password: <input type="password" name="password" required></label><br>
-    <input type="submit" name="login" value="Login">
+
+<h1>Welcome, <?php echo htmlspecialchars($managerUsername); ?></h1>
+<p><a href="manage.php?logout">Logout</a></p>
+<?php if (!empty($eoi_query_message)): ?>
+  <p><strong><?php echo htmlspecialchars($eoi_query_message); ?></strong></p>
+<?php endif; ?> 
+<!-- Search Form -->
+<section>
+  <h2>Search EOIs</h2>
+  <form method="post" action="manage.php">
+    <label>Job Ref: <input type="text" name="job_ref"></label>
+    <label>First Name: <input type="text" name="first_name"></label>
+    <label>Last Name: <input type="text" name="last_name"></label>
+    <input type="submit" name="search" value="Search">
   </form>
-<?php endif; ?>
-
-<?php if ($show_manager_content): ?>
-  <h1>Welcome, <?php echo htmlspecialchars($_SESSION['manager_username']); ?></h1>
-  <p><a href="manage.php?logout">Logout</a></p>
-
-  <?php if (!empty($eoi_query_message)): ?>
-    <p><strong><?php echo htmlspecialchars($eoi_query_message); ?></strong></p>
-  <?php endif; ?>
-
-  <!-- Search Form -->
-  <section>
-    <h2>Search EOIs</h2>
-    <form method="post" action="manage.php">
-      <label>Job Ref: <input type="text" name="job_ref"></label>
-      <label>First Name: <input type="text" name="first_name"></label>
-      <label>Last Name: <input type="text" name="last_name"></label>
-      <input type="submit" name="search" value="Search">
-    </form>
-  </section>
-
-  <!-- Delete Form -->
-  <section>
-    <h2>Delete EOIs by Job Ref</h2>
-    <form method="post" action="manage.php">
-      <label>Job Reference: <input type="text" name="delete_job_ref" required></label>
-      <input type="submit" name="delete" value="Delete">
-    </form>
-  </section>
-
-  <!-- Sort Form -->
-  <section>
-    <h2>Sort EOIs</h2>
-    <form method="post" action="manage.php">
-      <label>Sort by:
-        <select name="sort_by">
-          <option value="EOInumber">EOI Number</option>
-          <option value="jobReferenceNumber">Job Reference</option>
-          <option value="firstName">First Name</option>
-          <option value="lastName">Last Name</option>
-          <option value="status">Status</option>
-        </select>
-      </label>
-      <input type="submit" name="sort" value="Sort">
-    </form>
-  </section>
-
-  <!-- EOI Table -->
-  <section>
-    <h2>EOI List</h2>
-    <table border="1">
-      <thead>
+</section>
+<!-- Delete Form -->
+<section>
+  <h2>Delete EOIs by Job Ref</h2>
+  <form method="post" action="manage.php">
+    <label>Job Reference: <input type="text" name="delete_job_ref" required></label>
+    <input type="submit" name="delete" value="Delete">
+  </form>
+</section>
+<!-- Sort Form -->
+<section>
+  <h2>Sort EOIs</h2>
+  <form method="post" action="manage.php">
+    <label>Sort by:
+      <select name="sort_by">
+        <option value="EOInumber">EOI Number</option>
+        <option value="jobReferenceNumber">Job Reference</option>
+        <option value="firstName">First Name</option>
+        <option value="lastName">Last Name</option>
+        <option value="status">Status</option>
+      </select>
+    </label>
+    <input type="submit" name="sort" value="Sort">
+  </form>
+</section>
+<!-- EOI Table -->
+<section>
+  <h2>EOI List</h2>
+  <table border="1">
+    <thead>
+      <tr>
+        <th>EOI #</th>
+        <th>Job Ref</th>
+        <th>Applicant</th>
+        <th>Status</th>
+        <th>Update Status</th>
+      </tr>
+    </thead>
+    <tbody>
+    <?php if ($eoi_result && mysqli_num_rows($eoi_result) > 0): ?>
+      <?php while ($row = mysqli_fetch_assoc($eoi_result)): ?>
         <tr>
-          <th>EOI #</th>
-          <th>Job Ref</th>
-          <th>Applicant</th>
-          <th>Status</th>
-          <th>Update Status</th>
+          <td><?php echo $row['EOInumber']; ?></td>
+          <td><?php echo htmlspecialchars($row['jobReferenceNumber']); ?></td>
+          <td><?php echo htmlspecialchars($row['firstName'] . ' ' . $row['lastName']); ?></td>
+          <td><?php echo htmlspecialchars($row['status']); ?></td>
+          <td>
+            <form method="post" action="manage.php">
+              <input type="hidden" name="eoi_id" value="<?php echo $row['EOInumber']; ?>">
+              <select name="new_status">
+                <option value="New">New</option>
+                <option value="Current">Current</option>
+                <option value="Final">Final</option>
+              </select>
+              <input type="submit" name="update_status" value="Update">
+            </form>
+          </td>
         </tr>
-      </thead>
-      <tbody>
-      <?php if ($eoi_result && mysqli_num_rows($eoi_result) > 0): ?>
-        <?php while ($row = mysqli_fetch_assoc($eoi_result)): ?>
-          <tr>
-            <td><?php echo $row['EOInumber']; ?></td>
-            <td><?php echo htmlspecialchars($row['jobReferenceNumber']); ?></td>
-            <td><?php echo htmlspecialchars($row['firstName'] . ' ' . $row['lastName']); ?></td>
-            <td><?php echo htmlspecialchars($row['status']); ?></td>
-            <td>
-              <form method="post" action="manage.php">
-                <input type="hidden" name="eoi_id" value="<?php echo $row['EOInumber']; ?>">
-                <select name="new_status">
-                  <option value="New">New</option>
-                  <option value="Current">Current</option>
-                  <option value="Final">Final</option>
-                </select>
-                <input type="submit" name="update_status" value="Update">
-              </form>
-            </td>
-          </tr>
-        <?php endwhile; ?>
-      <?php else: ?>
-        <tr><td colspan="5">No EOIs found.</td></tr>
-      <?php endif; ?>
-      </tbody>
-    </table>
-  </section>
-<?php endif; ?>
+      <?php endwhile; ?>
+    <?php else: ?>
+      <tr><td colspan="5">No EOIs found.</td></tr>
+    <?php endif; ?>
+    </tbody>
+  </table>
+</section>
 
 </main>
 <?php include('footer.inc'); ?>

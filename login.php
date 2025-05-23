@@ -1,19 +1,23 @@
 <?php
 session_start();
 
+require_once './settings.php';
 
-if (isset($_SESSION['manager_logged_in']) && $_SESSION['manager_logged_in'] === true) {
-    header("Location: manage.php");
+if (empty($conn)) {
+    die("Connection failed: " . mysqli_connect_error());
     exit();
 }
 
-require_once("./settings.php");
+if (isset($_SESSION['manager_logged_in']) && $_SESSION['manager_logged_in'] === true) {
+    header("Location: manage.php");
+}
+
 $login_error_message = "";
 
 if (isset($_POST['login']) && isset($_POST['username']) && isset($_POST['password'])) {
     $conn = @mysqli_connect($host, $username, $password, $database); // from setting php
 
-    if (!conn) {
+    if (!$conn) {
         $login_error_message = "Database connection error. Please try again later.";
     } else {
         $username_attempt_sanitised = $_POST['username'];
@@ -28,10 +32,11 @@ if (isset($_POST['login']) && isset($_POST['username']) && isset($_POST['passwor
             $manager_data = mysqli_fetch_assoc($result);
             mysqli_stmt_close($stmt);
 
-            if ($manager_data && password_verify($password_attempt, $manager_data['password'])) {
+            if ($manager_data && password_verify($password_attempt_sanitised, $manager_data['password'])) {
                 // login success
+                session_regenerate_id(true);
                 $_SESSION['manager_logged_in'] = true;
-                $_SESSION['manager_username'] = $manager_data['username'];
+                $_SESSION['manager_username'] = $_POST['username'];
                 header("Location: manage.php"); // setting up the user's session and redirect to manage
                 exit();
             } else {
@@ -62,10 +67,10 @@ if (isset($_POST['login']) && isset($_POST['username']) && isset($_POST['passwor
             <h2>Manager Login</h2>
             <?php
             if (!empty($login_error_message)) {
-                echo "<p style'color:red,'>". htmlspecialchars($login_error_message) . "</p>"; }
+                echo "<p style='color:red;'>". htmlspecialchars($login_error_message) . "</p>"; }
             ?>
-            <form method='post' action="manage.php"> <!-- form submits to itself then redirects to manage on positive result -->
-                <label>Username: <input type="text" name="username" required value="<?php echo isset($_POST['username']) ? htmlspecialchars($_POST['username']) : ''; ?>"></label><br>
+            <form method='post' action="./login.php">
+                <label>Username: <input type="text" name="username" required value="<?php echo isset($_POST['manager_username']) ? htmlspecialchars($_POST['manager_username']) : ''; ?>"></label><br>
                 <!-- prev line: sees if there was a username previously submitted then displays that username or if not an empty string -->
                 <label>Password: <input type="text" name="password" required> </label><br> <!-- no need to update pwd -->
                 <input type="submit" name="login" value="login">

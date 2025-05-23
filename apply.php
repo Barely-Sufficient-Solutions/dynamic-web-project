@@ -14,7 +14,7 @@
         <h1 id="openPositionsTitle">Apply For Our Open Positions!</h1>
         <hr>
         
-        <form method="post" action="./process_eoi.php">
+        <form action="./process_eoi.php" method="post">
             <fieldset>
                 <legend>Job Reference Number</legend>
                 <label for="referencenumber">Select a Job Reference Number:</label>

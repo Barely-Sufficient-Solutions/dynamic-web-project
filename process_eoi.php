@@ -1,9 +1,11 @@
 <?php
+session_start();
+require_once './settings.php';
 
-require_once("settings.php");
 $databaseConnection = mysqli_connect($host, $username, $password, $database);
 if (!$databaseConnection) {
     die("Connection failed: " . mysqli_connect_error());
+    exit();
 }
 
 if (($_SERVER["REQUEST_METHOD"] == "POST") && ($databaseConnection)) {
@@ -19,6 +21,7 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && ($databaseConnection)) {
     $postcode = isset($_POST["postcode"]) ? sanitiseInput($_POST["postcode"]) : null;
     $emailAddress = isset($_POST["email"]) ? sanitiseInput($_POST["email"]) : null;
     $phoneNumber = isset($_POST["phone"]) ? sanitiseInput($_POST["phone"]) : null;
+    $username = '';
     
     $skills = [];
     if (isset($_POST["html"])) $skills[] = sanitiseInput($_POST["html"]);
@@ -50,7 +53,7 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && ($databaseConnection)) {
 
     if (!$dateOfBirth) {
         array_push($errorList, "No date of birth entered!");
-    } elseif (!preg_match($dateOfBirth, "\b(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/(\d{4})\b")) {
+    } elseif (!preg_match("/\b(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/(\d{4})\b/", $dateOfBirth)) {
         array_push($errorList, "Invalid date of birth! Make sure you enter it as dd/mm/yyyy!");
     } else {
         list($day, $month, $year) = explode("/", $dateOfBirth);
@@ -85,7 +88,7 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && ($databaseConnection)) {
 
     if (!$postcode) {
         array_push($errorList, "No postcode entered!");
-    } elseif (!preg_match("^\d{4}$", $postcode)) {
+    } elseif (!preg_match("/^\d{4}$/", $postcode)) {
         array_push($errorList, "Invalid postcode entered! Ensure it is 4 digits, even if it starts with 0s!");
     } else {
         $postcodeInt = (int)$postcode;
@@ -126,39 +129,73 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && ($databaseConnection)) {
 
     if (!$emailAddress) {
         array_push($errorList, "No email address entered!");
-    } elseif (!preg_match("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", $emailAddress)) {
+    } elseif (!preg_match("/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/", $emailAddress)) {
         array_push($errorList, "Invalid email format entered! Ensure it follows the template name@domain.tld!");
     }
 
     if (!$phoneNumber) {
         array_push($errorList, "No phone number entered!");
-    } elseif (!preg_match("^0\d(?:\s?\d){7,9}$", $phoneNumber)) {
+    } elseif (!preg_match("/^0\d(?:\s?\d){7,9}$/", $phoneNumber)) {
         array_push($errorList, "Invalid phone number format entered! Ensure you are not using the +61 format!");
+    }
+
+    elseif (!empty($errorList)) {
+        echo $errorlist;
     }
 
     // If form is valid, continue, otherwise redirect back and alert any errors.
     if (empty($errorList)) {
         // Create SQL query
-        $query = "INSERT INTO `eoi`(`jobReferenceNumber`, `firstName`, `lastName`, `dateOfBirth`, `gender`, `streetAddress`, `suburb`, `state`, `postcode`, `emailAddress`, `phoneNumber`, `skillsList`, `otherSkills`) VALUES ('$referenceNumber','$firstName',$lastName','$dateOfBirth','$gender','$streetAddress','$suburb','$state','$postcode','$emailAddress','$phoneNumber','$skillsJsonEncoded','$otherSkills')";
+        $username = generateUsername($firstName, $lastName, $databaseConnection);
+        $password = generatePassword(8);
+        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+        $query = "INSERT INTO `eoi`(`jobReferenceNumber`, `firstName`, `lastName`, `dateOfBirth`, `gender`, `streetAddress`, `suburb`, `state`, `postcode`, `emailAddress`, `phoneNumber`, `skillsList`, `otherSkills`, `username`, `password`) VALUES ('$referenceNumber','$firstName','$lastName','$dateOfBirth','$gender','$streetAddress','$suburb','$state','$postcode','$emailAddress','$phoneNumber','$skillsJsonEncoded','$otherSkills', '$username', '$passwordHash')";
         // Execute SQL query
         $result = mysqli_query($databaseConnection, $query);
-        header("Location: applied.php");
+        if ($result) {
+            $_SESSION['firstName'] = $firstName;
+            $_SESSION['eoi_username'] = $username; 
+            $_SESSION['generated_password'] = $password;
+            $_SESSION['eoiNumber'] = mysqli_insert_id($databaseConnection);
+            header("Location: applied.php"); 
+            exit();
+        }
         mysqli_close($databaseConnection);
     } else {
         // Show all errors on the apply page
         $encodedErrorList = json_encode($errorList);
         header("Location: apply.php?errors=$encodedErrorList");
+        echo $job;
         mysqli_close($databaseConnection);
     }
 } else {
     // Redirect back to apply page
-    header("Location: apply.php");
+    header("Location: about.php");
 }
 
 function sanitiseInput($input) {
    $input = trim($input);
    $input = stripslashes($input);
    $input = htmlspecialchars($input);
+   return $input;
 }
 
+function generateUsername($firstName, $lastName, $databaseConnection) {
+    $firstName = strtolower(trim($firstName));
+    $lastName = strtolower(trim($lastName));
+    $randomNum = random_int(100, 999);
+    $username = $firstName . "." . $lastName . $randomNum;
+    $check = mysqli_query($databaseConnection, "SELECT * FROM eoi WHERE username = '$username'");
+    return $username; // returns first name.last name rand (charlie.walker931)
+}
+
+function generatePassword($passwordLength) {
+    $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+    $password = "";
+    for ($i = 0; $i < $passwordLength; $i++) {
+        $index = random_int(0, strlen($chars) - 1);
+        $password .= $chars[$index];
+    } 
+    return $password;
+}
 ?>
