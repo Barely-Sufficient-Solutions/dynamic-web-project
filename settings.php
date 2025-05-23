@@ -2,7 +2,7 @@
 $host = "localhost";
 $username = "root";
 $password = "";
-$database = "bss_db";
+$database = "job_applications";
 
 $conn = mysqli_connect($host, $username, $password, $database);
 

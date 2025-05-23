@@ -8,6 +8,7 @@
             <li><a href="apply.php">Apply✅</a></li>
             <li><a href="about.php">About👯</a></li>
             <li><a href="mailto:charliewalker@gmail.com">Email📩</a></li>
+            <li><a href="./login.php">HR Portal👷‍♀️</a></li>
         </ul>
     </nav>
 </header>
