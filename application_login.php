@@ -9,7 +9,7 @@ if (!$conn) {
 }
 
 // If already logged in, redirect to applied.php
-if (isset($_SESSION['applicant_logged_in']) && $_SESSION['applicant_logged_in'] === true) {
+if (isset($_SESSION['applicant_logged_in']) === true) {
     header("Location: /dynamic-web-project/applied.php");
     exit();
 }
@@ -34,8 +34,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['login'])) {
             // Success: store session values and redirect
             $_SESSION['applicant_logged_in'] = true;
             $_SESSION['eoi_username'] = $username_input;
-            $_SESSION['eoi_id'] = $user['EOInumber'];
-            header("./application_login.php");
+            $_SESSION['eoiNumber'] = $user['EOInumber'];
+            header("Location: ./application_login.php");
             exit();
         } else {
             $login_error_message = "Invalid username or password.";
