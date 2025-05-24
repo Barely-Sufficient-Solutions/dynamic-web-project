@@ -19,6 +19,8 @@ if (isset($_POST['login']) && isset($_POST['username']) && isset($_POST['passwor
 
     if (!$conn) {
         $login_error_message = "Database connection error. Please try again later.";
+    } elseif ($_SESSION['invalid_login_attempts'] and $_SESSION['invalid_login_attempts'] >= 3) {
+        $login_error_message = "Too many failed login attempts. Please try again later.";
     } else {
         $username_attempt_sanitised = $_POST['username'];
         $password_attempt_sanitised = $_POST['password']; // no trim for verification
@@ -38,9 +40,12 @@ if (isset($_POST['login']) && isset($_POST['username']) && isset($_POST['passwor
                 $_SESSION['manager_logged_in'] = true;
                 $_SESSION['manager_username'] = $_POST['username'];
                 header("Location: manage.php"); // setting up the user's session and redirect to manage
+                $_SESSION['invalid_login_attempts'] = 0; // reset invalid login attempts
                 exit();
             } else {
-                $login_error_message = "Invalid username or password";
+                // login failed
+                $_SESSION['invalid_login_attempts'] = isset($_SESSION['invalid_login_attempts']) ? $_SESSION['invalid_login_attempts'] + 1 : 1;
+                $login_error_message = "Invalid username or password. Please try again.";
             } 
         }else {
             $login_error_message = "Login system error. Please try again later.";
@@ -67,7 +72,7 @@ if (isset($_POST['login']) && isset($_POST['username']) && isset($_POST['passwor
             <h2>Manager Login</h2>
             <?php
             if (!empty($login_error_message)) {
-                echo "<p style='color:red;'>". htmlspecialchars($login_error_message) . "</p>"; }
+                echo "<p style='color: red;'>". htmlspecialchars($login_error_message) . "</p>"; }
             ?>
             <form method='post' action="./login.php">
                 <label>Username: <input type="text" name="username" required value="<?php echo isset($_POST['manager_username']) ? htmlspecialchars($_POST['manager_username']) : ''; ?>"></label><br>

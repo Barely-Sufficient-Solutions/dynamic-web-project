@@ -13,7 +13,16 @@
         <a class='jobsLink' href="jobs.html">See more about our positions</a>
         <h1 id="openPositionsTitle">Apply For Our Open Positions!</h1>
         <hr>
-        
+        <!---Put warnings here if any are present!-->
+        <?php 
+        if (isset($_GET['errors'])) {
+            $error_list = json_decode($_GET['errors']);
+            echo "<h2 style='color: red;'>There were some issues with your submission:</h2>";
+            foreach ($error_list as $error) {
+                echo "<p style='color: red;'>Warning: " . htmlspecialchars($error) . "</p>";
+            }
+        }
+        ?>
         <form action="./process_eoi.php" method="post">
             <fieldset>
                 <legend>Job Reference Number</legend>
