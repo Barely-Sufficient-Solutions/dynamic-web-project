@@ -1,31 +1,26 @@
-<?php 
+<?php
 session_start();
 require_once './settings.php';
 
-// Redirect if not logged in
-if (!isset($_SESSION['applicant_logged_in']) || !isset($_SESSION['eoi_id'])) {
+if (empty($_SESSION['applicant_logged_in']) || empty($_SESSION['eoi_id'])) {
     header("Location: application_login.php");
     exit();
 }
 
-// DB connection
 $conn = mysqli_connect($host, $username, $password, $database);
 if (!$conn) {
-    die("<main><p>Database connection failed: " . mysqli_connect_error() . "</p></main>");
+    die("Database connection failed: " . mysqli_connect_error());
 }
 
-$eoiId = $_SESSION['eoi_id'];
-
-// Fetch applicant details
+$eoi_id = $_SESSION['eoi_id'];
 $query = "SELECT EOInumber, firstName, lastName, username, jobReferenceNumber, status FROM eoi WHERE EOInumber = ?";
 $stmt = mysqli_prepare($conn, $query);
-mysqli_stmt_bind_param($stmt, "i", $eoiId);
+mysqli_stmt_bind_param($stmt, "i", $eoi_id);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 $applicant = mysqli_fetch_assoc($result);
 mysqli_stmt_close($stmt);
 
-// If not found (shouldn't happen), logout
 if (!$applicant) {
     session_unset();
     session_destroy();
@@ -41,7 +36,6 @@ if (isset($_GET['logout'])) {
     exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -55,9 +49,15 @@ if (isset($_GET['logout'])) {
         <section>
             <h1>Welcome, <?php echo htmlspecialchars($applicant['firstName']); ?>!</h1>
             <p><strong>EOI Number:</strong> <?php echo $applicant['EOInumber']; ?></p>
-            <p><strong>Job Reference:</strong> <?php echo $applicant['jobReferenceNumber']; ?></p>
-            <p><strong>Username:</strong> <?php echo $applicant['username']; ?></p>
-            <p><strong>Status:</strong> <?php echo $applicant['status']; ?></p>
+            <p><strong>Job Reference:</strong> <?php echo htmlspecialchars($applicant['jobReferenceNumber']); ?></p>
+            <p><strong>Username:</strong> <?php echo htmlspecialchars($applicant['username']); ?></p>
+            <p><strong>Status:</strong> <?php echo htmlspecialchars($applicant['status']); ?></p>
+
+            <?php if (isset($_SESSION['show_password_once'])): ?>
+                <p style="color:green;"><strong>Your password:</strong> <?php echo htmlspecialchars($_SESSION['show_password_once']); ?></p>
+                <?php unset($_SESSION['show_password_once']); ?>
+            <?php endif; ?>
+
             <p><a href="applied.php?logout">Logout</a></p>
         </section>
     </main>

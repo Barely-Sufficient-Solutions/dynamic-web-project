@@ -3,9 +3,15 @@ session_start();
 require_once './settings.php';
 
 $eoi_query_message = "";
-$show_manager_content = true;
+$show_manager_content = false;
 
-print_r($_SESSION);
+if (isset($_SESSION['manager_logged_in']) && $_SESSION['manager_logged_in'] === true) {
+    $show_manager_content = true;
+} else {
+  header("Location: ./login.php");
+  exit();
+}
+
 
 $conn = mysqli_connect($host, $username, $password, $database);
 if (!$conn) {
@@ -40,9 +46,6 @@ if (!$conn) {
 //}
 
 // Already logged in
-if (isset($_SESSION['manager_logged_in']) && $_SESSION['manager_logged_in'] === true) {
-    $show_manager_content = true;
-}
 
 // Logout
 if (isset($_GET['logout'])) {

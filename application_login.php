@@ -2,21 +2,19 @@
 session_start();
 require_once './settings.php';
 
-// Create DB connection
 $conn = mysqli_connect($host, $username, $password, $database);
 if (!$conn) {
     die("Database connection failed: " . mysqli_connect_error());
 }
 
-// If already logged in, redirect to applied.php
-if (isset($_SESSION['applicant_logged_in']) === true) {
-    header("Location: /dynamic-web-project/applied.php");
+// Already logged in? Go straight to applied.php
+if (!empty($_SESSION['applicant_logged_in']) && !empty($_SESSION['eoi_id'])) {
+    header("Location: applied.php");
     exit();
 }
 
 $login_error_message = "";
 
-// Handle login form submission
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['login'])) {
     $username_input = trim($_POST['username']);
     $password_input = $_POST['password'];
@@ -31,11 +29,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['login'])) {
         mysqli_stmt_close($stmt);
 
         if ($user && password_verify($password_input, $user['password'])) {
-            // Success: store session values and redirect
+            // Login successful
             $_SESSION['applicant_logged_in'] = true;
-            $_SESSION['eoi_username'] = $username_input;
-            $_SESSION['eoiNumber'] = $user['EOInumber'];
-            header("Location: ./application_login.php");
+            $_SESSION['eoi_id'] = $user['EOInumber'];
+            $_SESSION['eoi_username'] = $user['username'];
+            $_SESSION['show_password_once'] = $password_input; // Store plain password temporarily
+            header("Location: applied.php");
             exit();
         } else {
             $login_error_message = "Invalid username or password.";
@@ -45,8 +44,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['login'])) {
     }
 }
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -65,10 +62,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['login'])) {
             <?php endif; ?>
 
             <form method="post" action="application_login.php">
-                <label>Username: 
+                <label>Username:
                     <input type="text" name="username" required value="<?php echo isset($_POST['username']) ? htmlspecialchars($_POST['username']) : ''; ?>">
                 </label><br>
-                <label>Password: 
+                <label>Password:
                     <input type="password" name="password" required>
                 </label><br>
                 <input type="submit" name="login" value="Login">
