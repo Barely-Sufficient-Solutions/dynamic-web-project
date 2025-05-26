@@ -50,7 +50,7 @@
                 </div>
                 <div class="member">
                     <dt>David</dt>
-                    <dd>About page, some CSS</dd>
+                    <dd>About page, some CSS, PHP expression of interest handling, database creation, </dd>
                 </div>
             </dl>
         </section>
