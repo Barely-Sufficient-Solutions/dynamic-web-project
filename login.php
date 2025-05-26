@@ -77,7 +77,7 @@ if (isset($_POST['login']) && isset($_POST['username']) && isset($_POST['passwor
             <form method='post' action="./login.php">
                 <label>Username: <input type="text" name="username" required value="<?php echo isset($_POST['manager_username']) ? htmlspecialchars($_POST['manager_username']) : ''; ?>"></label><br>
                 <!-- prev line: sees if there was a username previously submitted then displays that username or if not an empty string -->
-                <label>Password: <input type="text" name="password" required> </label><br> <!-- no need to update pwd -->
+                <label>Password: <input type="password" name="password" required> </label><br> <!-- no need to update pwd -->
                 <input type="submit" name="login" value="login">
             </form>
         </section>
